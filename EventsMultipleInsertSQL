@@ -1,5 +1,5 @@
 ALTER PROC [dbo].[Events_InsertV2]
-                                @EventTypeId int
+                                                            @EventTypeId int
 							   ,@EventCategoryId int
 							   ,@EventName nvarchar(255)
 							   ,@Summary nvarchar(255)
@@ -23,7 +23,7 @@ ALTER PROC [dbo].[Events_InsertV2]
 							   ,@Latitude float
 							   ,@Longitude float
 							   ,@CreatedBy int 
-				               ,@ModifiedBy int = null
+				                           ,@ModifiedBy int = null
 							   ,@UserId int
 							   ,@IsFree bit
 							   ,@Id int OUTPUT
@@ -61,7 +61,7 @@ ALTER PROC [dbo].[Events_InsertV2]
 							   ,@IsFree bit = 0
 
 			Execute dbo.Events_InsertV2
-			                   @EventTypeId
+			                                    @EventTypeId
 							   ,@EventCategoryId
 							   ,@EventName
 							   ,@Summary
@@ -93,10 +93,6 @@ ALTER PROC [dbo].[Events_InsertV2]
 
 
 
-	SELECT * FROM dbo.Locations
-	SELECT * FROM dbo.Venues
-	SELECT * FROM dbo.Events
-			
 				Declare	@Id int = 56
 				       
 			Execute dbo.Events_SelectDetails_ById  @Id
@@ -123,8 +119,8 @@ DECLARE @VenueId int,
        @LocationId int
    
 
-	EXEC dbo.Locations_Insert
-	             @LocationTypeId  
+	     EXEC dbo.Locations_Insert
+	                         @LocationTypeId  
 				,@LineOne
 				,@LineTwo 
 				,@City  
@@ -146,21 +142,21 @@ DECLARE @VenueId int,
 				,@VenueId OUTPUT
 
 		EXEC dbo.Events_Insert
-		    @EventTypeId 
-           ,@EventCategoryId 
-           ,@EventName 
-           ,@Summary 
-           ,@ShortDescription 
-           ,@VenueId 
-           ,@EventStatusId
-           ,@ExternalId
-		   ,@EventImageUrl
-           ,@ExternalSiteUrl
-		   ,@DateStart
-		   ,@DateEnd
-		   ,@IsFree
-		   ,@CreatedBy
-		   ,@Id OUTPUT
+                               @EventTypeId 
+                              ,@EventCategoryId 
+                              ,@EventName 
+                              ,@Summary 
+                              ,@ShortDescription 
+                              ,@VenueId 
+                              ,@EventStatusId
+                              ,@ExternalId
+		              ,@EventImageUrl
+                              ,@ExternalSiteUrl
+		              ,@DateStart
+		              ,@DateEnd
+		              ,@IsFree
+		              ,@CreatedBy
+		              ,@Id OUTPUT
 
 
 END
