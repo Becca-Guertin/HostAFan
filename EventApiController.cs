@@ -226,33 +226,4 @@ namespace Sabio.Web.Api.Controllers
             return result;
         }
 
-        [HttpGet("external")]
-        public ActionResult<ItemResponse<SGEventApiReturn>> SearchByQuery(int pageSize, int pageIndex, string query, int miles, double lat, double lon)
-        {
-            int code = 200;
-            BaseResponse response = null;
-
-            try
-            {
-                Task<SGEventApiReturn> list = _geekService.SearchEventsByQuery(pageSize, pageIndex, query, miles, lat, lon);
-
-                if (list == null)
-                {
-                    code = 404;
-                    response = new ErrorResponse("SeatGeek Resource Not Found");
-                }
-                else
-                {
-                    response = new ItemResponse<Task<SGEventApiReturn>>() { Item = list };
-                }
-            }
-            catch (Exception ex)
-            {
-                code = 500;
-                response = new ErrorResponse($"Generic Error: {ex.Message}");
-
-            }
-            return StatusCode(code, response);
-        }
-    }
-}
+//         Commented out code to protect company security
