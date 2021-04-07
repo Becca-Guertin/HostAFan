@@ -1,0 +1,193 @@
+ALTER PROC [dbo].[Events_InsertV2]
+                                @EventTypeId int
+							   ,@EventCategoryId int
+							   ,@EventName nvarchar(255)
+							   ,@Summary nvarchar(255)
+							   ,@ShortDescription nvarchar(4000)
+							   ,@Name nvarchar(255)
+							   ,@Description nvarchar(4000)
+							   ,@Url nvarchar(255)
+							   ,@ImageUrl nvarchar(255) = null
+							   ,@EventStatusId int
+							   ,@EventImageUrl nvarchar(400)
+							   ,@ExternalId int = null
+							   ,@ExternalSiteUrl nvarchar(400) = null
+							   ,@DateStart datetime2(7)
+							   ,@DateEnd datetime2(7)
+							   ,@LocationTypeId int
+							   ,@LineOne nvarchar(255)
+							   ,@LineTwo nvarchar(255) = null
+							   ,@City nvarchar(255)
+							   ,@Zip nvarchar(50) = null
+							   ,@StateId int
+							   ,@Latitude float
+							   ,@Longitude float
+							   ,@CreatedBy int 
+				               ,@ModifiedBy int = null
+							   ,@UserId int
+							   ,@IsFree bit
+							   ,@Id int OUTPUT
+
+/*
+
+                       Declare @Id int = 0;
+
+                       Declare  @EventTypeId int = 2
+							   ,@EventCategoryId int = 6
+							   ,@EventName nvarchar(255) = 'The Grammys'
+							   ,@Summary nvarchar(255) = 'music award show'
+							   ,@ShortDescription nvarchar(4000) = 'A house party to watch the Grammys'
+							   ,@Name nvarchar(255) = 'Hollywood Bowl'
+							   ,@Description nvarchar(4000) = 'Huge outdoor ampitheater'
+							   ,@Url nvarchar(255) = 'https://www.hostafanhollywood.com'
+							   ,@ImageUrl nvarchar(255) = 'https://ucarecdn.com/c4485749-d44a-456c-9738-559e9c57024c/-/crop/1881x1060/43,0/-/resize/1008x568/'
+							   ,@EventStatusId int = 1
+							   ,@EventImageUrl nvarchar(400) = 'https://kpbs.media.clients.ellingtoncms.com/img/photos/2018/04/13/coachella2_t800.jpg?90232451fbcadccc64a17de7521d859a8f88077d'
+							   ,@ExternalId int = 3
+							   ,@ExternalSiteUrl nvarchar(400) = 'https://www.hollywoodbowl.com/'
+							   ,@DateStart datetime2(7) = '2021-06-25 20:30:00.0000000'
+							   ,@DateEnd datetime2(7) = '2021-06-29 11:30:00.0000000'
+							   ,@LocationTypeId int = 2
+							   ,@LineOne nvarchar(255) = '2000 north st'
+							   ,@LineTwo nvarchar(255) = null
+							   ,@City nvarchar(255) = 'Hollywood'
+							   ,@Zip nvarchar(50) = 90020
+							   ,@StateId int = 5
+							   ,@Latitude float = 119.234
+							   ,@Longitude float = 36.005
+							   ,@CreatedBy int = 8
+							   ,@ModifiedBy int = 8
+							   ,@UserId int = 3
+							   ,@IsFree bit = 0
+
+			Execute dbo.Events_InsertV2
+			                   @EventTypeId
+							   ,@EventCategoryId
+							   ,@EventName
+							   ,@Summary
+							   ,@ShortDescription
+							   ,@Name
+							   ,@Description
+							   ,@Url
+							   ,@ImageUrl
+							   ,@EventStatusId
+							   ,@EventImageUrl
+							   ,@ExternalId
+							   ,@ExternalSiteUrl
+							   ,@DateStart
+							   ,@DateEnd
+							   ,@LocationTypeId
+							   ,@LineOne
+							   ,@LineTwo
+							   ,@City
+							   ,@Zip
+							   ,@StateId
+							   ,@Latitude
+							   ,@Longitude
+							   ,@CreatedBy
+							   ,@ModifiedBy
+							   ,@UserId
+							   ,@IsFree
+							   ,@Id OUTPUT
+
+
+
+
+	SELECT * FROM dbo.Locations
+	SELECT * FROM dbo.Venues
+	SELECT * FROM dbo.Events
+			
+				Declare	@Id int = 56
+				       
+			Execute dbo.Events_SelectDetails_ById  @Id
+
+			
+
+
+*/
+
+
+as
+
+SET XACT_ABORT ON
+Declare @Tran nvarchar(50) = 'InsertTransaction'
+
+
+BEGIN TRY
+
+BEGIN Transaction @Tran
+
+BEGIN
+
+DECLARE @VenueId int,
+       @LocationId int
+   
+
+	EXEC dbo.Locations_Insert
+	             @LocationTypeId  
+				,@LineOne
+				,@LineTwo 
+				,@City  
+				,@Zip 
+				,@StateId 
+				,@Latitude 
+				,@Longitude 
+				,@CreatedBy  
+				,@ModifiedBy 
+				,@LocationId OUTPUT
+
+		EXEC dbo.Venues_Insert
+				 @Name
+				,@Description
+				,@LocationId
+				,@Url
+				,@UserId
+				,@ImageUrl
+				,@VenueId OUTPUT
+
+		EXEC dbo.Events_Insert
+		    @EventTypeId 
+           ,@EventCategoryId 
+           ,@EventName 
+           ,@Summary 
+           ,@ShortDescription 
+           ,@VenueId 
+           ,@EventStatusId
+           ,@ExternalId
+		   ,@EventImageUrl
+           ,@ExternalSiteUrl
+		   ,@DateStart
+		   ,@DateEnd
+		   ,@IsFree
+		   ,@CreatedBy
+		   ,@Id OUTPUT
+
+
+END
+Commit Transaction @Tran
+
+END TRY
+BEGIN CATCH
+
+	IF (XACT_STATE()) = -1
+	BEGIN
+		PRINT 'The transaction is in an uncommitable state.' + 'Rolling back transaction'
+		ROLLBACK TRANSACTION @Tran;;
+	END;
+
+	IF (XACT_STATE()) = 1
+	BEGIN
+		PRINT 'The transaction is committable.' + 'Committing transaction.'
+		COMMIT TRANSACTION @Tran;;
+	END;
+
+	SELECT  
+        ERROR_NUMBER() AS ErrorNumber  
+        ,ERROR_SEVERITY() AS ErrorSeverity  
+        ,ERROR_STATE() AS ErrorState  
+        ,ERROR_PROCEDURE() AS ErrorProcedure  
+        ,ERROR_MESSAGE() AS ErrorMessage;
+		throw 
+END CATCH
+
+SET XACT_ABORT OFF
